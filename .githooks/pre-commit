@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+echo "Running test suite before commit..."
+
+bun run test
+status=$?
+
+if [ "$status" -ne 0 ]; then
+  echo "Commit blocked: one or more tests failed."
+  exit "$status"
+fi
