@@ -10,8 +10,10 @@ interface UseComponentGeneratorReturn {
   clearAll: () => void;
 }
 
-export function useComponentGenerator(): UseComponentGeneratorReturn {
-  const [components, setComponents] = useState<GeneratedComponent[]>([]);
+export function useComponentGenerator(
+  initialComponents: GeneratedComponent[] = [],
+): UseComponentGeneratorReturn {
+  const [components, setComponents] = useState<GeneratedComponent[]>(initialComponents);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
