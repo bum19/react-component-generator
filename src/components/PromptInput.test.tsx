@@ -26,4 +26,11 @@ describe('PromptInput', () => {
     render(<PromptInput onGenerate={vi.fn()} isLoading={true} />);
     expect(screen.getByRole('button', { name: '생성 중...' })).toBeDisabled();
   });
+
+  it('프롬프트 입력을 500자로 제한하고 현재 글자 수를 표시한다', () => {
+    render(<PromptInput onGenerate={vi.fn()} isLoading={false} />);
+
+    expect(screen.getByRole('textbox')).toHaveAttribute('maxLength', '500');
+    expect(screen.getByText('0 / 500자')).toBeInTheDocument();
+  });
 });
