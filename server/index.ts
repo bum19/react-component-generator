@@ -1,5 +1,6 @@
 import { stripCodeFences, ensureRenderCall } from './generator';
 import { withModelFallback } from './fallback';
+import { createGenerationStream } from './streaming';
 
 // 우선순위 순서. 앞 모델이 실패하면 다음 모델로 폴백한다.
 const GOOGLE_MODELS = ['gemini-3.1-flash-lite', 'gemini-3.5-flash'];
@@ -158,10 +159,11 @@ const server = Bun.serve({
 
     if (req.method === 'POST' && url.pathname === '/api/generate') {
       try {
-        const { prompt, apiKey, provider = 'anthropic' } = (await req.json()) as {
+        const { prompt, apiKey, provider = 'anthropic', stream = false } = (await req.json()) as {
           prompt: string;
           apiKey?: string;
           provider?: Provider;
+          stream?: boolean;
         };
 
         const resolvedKey = resolveApiKey(provider, apiKey);
@@ -178,6 +180,13 @@ const server = Bun.serve({
             { error: 'Prompt is required' },
             { status: 400, headers: CORS_HEADERS }
           );
+        }
+
+        if (stream) {
+          return createGenerationStream({
+            prompt, apiKey: resolvedKey, provider, systemPrompt: SYSTEM_PROMPT,
+            models: GOOGLE_MODELS, headers: CORS_HEADERS,
+          });
         }
 
         const text =
